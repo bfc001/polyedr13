@@ -119,7 +119,7 @@ class TestVoid(unittest.TestCase):
                    Edge(R3(2.0, 4.0, 0.0), R3(6.0, 4.0, 5.0)),
                    Edge(R3(6.0, 4.0, 5.0), R3(7.0, 0.0, -1.0)),
                    Edge(R3(7.0, 0.0, -1.0), R3(1.0, 0.0, 0.0))])
-        self.assertAlmostEqual(Facet.area(f), 20)
+        self.assertAlmostEqual(Facet.area(f, 1, 0, 0, 0), 20)
 
     def test_area02(self):
         f = Facet([R3(0.0, 0.0, 0.0), R3(3.0, 0.0, 0.0), R3(0.0, 3.0, 0.0)],
@@ -127,7 +127,7 @@ class TestVoid(unittest.TestCase):
                    Edge(R3(3.0, 0.0, 0.0), R3(0.0, 3.0, 0.0)),
                    Edge(R3(0.0, 3.0, 0.0), R3(0.0, 0.0, 0.0))]
                   )
-        self.assertAlmostEqual(Facet.area(f), 4.5)
+        self.assertAlmostEqual(Facet.area(f, 1, 0, 0, 0), 4.5)
 
     # Удовлетворяет ли грань условиям
     def test_is_desired_facet01(self):
@@ -145,7 +145,7 @@ class TestVoid(unittest.TestCase):
                   )
         for i in g.edges:
             i.shadow(f)
-        self.assertTrue(g.is_desired_facet())
+        self.assertTrue(g.is_desired_facet(1, 0, 0, 0))
 
     def test_is_desired_facet02(self):
         f = Facet([R3(0.0, 0.0, 0.0), R3(3.0, 0.0, 0.0), R3(0.0, 3.0, 0.0)],
@@ -161,7 +161,7 @@ class TestVoid(unittest.TestCase):
                    Edge(R3(1.0, 3.0, 1.0), R3(1.0, 1.0, 1.0))])
         for i in f.edges:
             i.shadow(g)
-        self.assertFalse(f.is_desired_facet())
+        self.assertFalse(f.is_desired_facet(1, 0, 0, 0))
 
     def test_is_desired_facet03(self):
         f = Facet([R3(2.0, 0.0, 0.0), R3(2.0, 4.0, 0.0),
@@ -178,7 +178,7 @@ class TestVoid(unittest.TestCase):
                    Edge(R3(8.0, 2.0, 4.0), R3(1.0, 2.0, 3.0))])
         for i in f.edges:
             i.shadow(g)
-        self.assertFalse(Facet.is_desired_facet(f))
+        self.assertFalse(Facet.is_desired_facet(f, 1, 0, 0, 0))
 
     def test_sum_area(self):
         f = Facet([R3(2.0, 0.0, 0.0), R3(2.0, 4.0, 0.0),
@@ -187,7 +187,4 @@ class TestVoid(unittest.TestCase):
                    Edge(R3(2.0, 4.0, 0.0), R3(5.0, 4.0, 0.0)),
                    Edge(R3(5.0, 4.0, 0.0), R3(5.0, 0.0, 0.0)),
                    Edge(R3(5.0, 0.0, 0.0), R3(2.0, 0.0, 0.0))])
-        self.assertAlmostEqual(f.sum_area(), 12)
-
-
-
+        self.assertAlmostEqual(f.area(1, 0, 0, 0), 12)

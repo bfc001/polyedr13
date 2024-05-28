@@ -45,9 +45,10 @@ class R3:
     # Лежит ли точка строго вне куба единичного объема
     # с центром в начале координат и рёбрами, параллельными координатным осям
     def is_outside(self):
-        return (self.x > 0.5 or self.x < -0.5) or \
-            (self.y > 0.5 or self.y < -0.5) or \
-            (self.z > 0.5 or self.z < -0.5)
+        eps = 0.0001
+        return (self.x - 0.5 > eps or self.x + 0.5 < -eps) or \
+            (self.y - 0.5 > eps or self.y + 0.5 < -eps) or \
+            (self.z - 0.5 > eps or self.z + 0.5 < -eps)
 
     # Площадь проекции треугольника
     @staticmethod

@@ -121,21 +121,22 @@ class Facet:
     # полностью видимыми, и ее центр лежит
     # строго вне куба единичного объема с центром в начале
     # координат и рёбрами, параллельными координатным осям
-    def is_desired_facet(self):
-        center = self.center()
+    def is_desired_facet(self, c, alpha, beta, gamma):
+        center = self.center().rz(-gamma).ry(-beta).rz(-alpha) * (1/c)
         if center.is_outside():
             n = 0
-            c = 0.0001
+            eps = 0.0001
             for e in self.edges:
-                if len(e.gaps) == 1 and (e.gaps[0].beg < c and abs(e.gaps[0].fin - 1.0) < c) \
-                        and e.gaps[0].fin - e.gaps[0].beg >= c:
+                if len(e.gaps) == 1 and (e.gaps[0].beg < eps and
+                                         abs(e.gaps[0].fin - 1.0) < eps):
                     n += 1
             if n == len(self.edges):
                 return True
+        return False
 
     # Площадь проекции подходящей грани
-    def area(self):
-        if self.is_desired_facet():
+    def area(self, c, alpha, beta, gamma):
+        if self.is_desired_facet(c, alpha, beta, gamma):
             for i in range(len(self.vertexes) - 1):
                 self._area += abs(R3.t_area(self.vertexes[i],
                                             self.vertexes[i + 1],
@@ -146,11 +147,6 @@ class Facet:
             return self._area
         else:
             return 0.0
-
-    # Сумма площадей проекций подходщих
-    # граней равна площади текущей грани
-    def sum_area(self):
-        return self.area()
 
 
 class Polyedr:
@@ -165,6 +161,10 @@ class Polyedr:
         self.vertexes, self.edges, self.facets = [], [], []
         # изначально сумма площадей проекций подходящих граней равна нулю
         self._sum_area = 0.0
+        self.c = 0
+        self.alpha = 0
+        self.beta = 0
+        self.gamma = 0
 
         # список строк файла
         with open(file) as f:
@@ -173,9 +173,10 @@ class Polyedr:
                     # обрабатываем первую строку; buf - вспомогательный массив
                     buf = line.split()
                     # коэффициент гомотетии
-                    c = float(buf.pop(0))
+                    self.c = float(buf.pop(0))
                     # углы Эйлера, определяющие вращение
-                    alpha, beta, gamma = (float(x) * pi / 180.0 for x in buf)
+                    self.alpha, self.beta, self.gamma = (float(x) * pi / 180.0
+                                                         for x in buf)
                 elif i == 1:
                     # во второй строке число вершин, граней и рёбер полиэдра
                     nv, nf, ne = (int(x) for x in line.split())
@@ -183,7 +184,7 @@ class Polyedr:
                     # задание всех вершин полиэдра
                     x, y, z = (float(x) for x in line.split())
                     self.vertexes.append(R3(x, y, z).rz(
-                        alpha).ry(beta).rz(gamma) * c)
+                        self.alpha).ry(self.beta).rz(self.gamma) * self.c)
                 else:
                     # вспомогательный массив
                     buf = line.split()
@@ -207,9 +208,20 @@ class Polyedr:
         for e in self.edges:
             for f in self.facets:
                 e.shadow(f)
-                self._sum_area += f.area()
+
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
+
+        for f in self.facets:
+            self._sum_area += f.area(self.c, self.alpha, self.beta, self.gamma)
+
+    def task13(self):
+        for e in self.edges:
+            for f in self.facets:
+                e.shadow(f)
+
+        for f in self.facets:
+            self._sum_area += f.area(self.c, self.alpha, self.beta, self.gamma)
 
     def sum_area(self):
         return self._sum_area
