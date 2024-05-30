@@ -144,7 +144,7 @@ class Facet:
             self._area += abs(R3.t_area(self.vertexes[0],
                                         self.vertexes[len(self.vertexes) - 1],
                                         self.center()))
-            return self._area
+            return self._area * (1 / c**2)
         else:
             return 0.0
 
